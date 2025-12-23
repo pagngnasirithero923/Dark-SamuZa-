@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Queen Asha MD MINI BOT</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+body{
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ===== Background Video ===== */
+video.bg-video{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-1;
+  filter:brightness(0.4);
+}
+
+/* ===== Center ===== */
+.container{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+/* ===== Box ===== */
+.box{
+  width:330px;
+  padding:25px;
+  background:rgba(0,0,0,0.7);
+  border-radius:15px;
+  text-align:center;
+  position:relative;
+}
+
+/* RGB Border */
+.box::before{
+  content:"";
+  position:absolute;
+  inset:-3px;
+  border-radius:18px;
+  background:linear-gradient(90deg,#00ffff,#00ff00,#ff00ff,#00ffff);
+  z-index:-1;
+  filter:blur(8px);
+  animation:borderRGB 5s linear infinite;
+}
+
+@keyframes borderRGB{
+  0%{filter:blur(6px);}
+  50%{filter:blur(12px);}
+  100%{filter:blur(6px);}
+}
+
+/* ===== RGB TITLE ===== */
+.rgb-text{
+  font-size:22px;
+  font-weight:bold;
+  animation:rgbTitle 3s linear infinite;
+}
+
+@keyframes rgbTitle{
+  0%{color:#00ffff;text-shadow:0 0 8px #00ffff;}
+  33%{color:#00ff00;text-shadow:0 0 8px #00ff00;}
+  66%{color:#ff00ff;text-shadow:0 0 8px #ff00ff;}
+  100%{color:#00ffff;text-shadow:0 0 8px #00ffff;}
+}
+
+h6{
+  color:#8ffcff;
+  margin-top:8px;
+}
+
+/* ===== Input ===== */
+.input-container{
+  display:flex;
+  margin-top:15px;
+}
+
+.input-container input{
+  width:70%;
+  height:45px;
+  border:none;
+  outline:none;
+  border-radius:10px 0 0 10px;
+  padding-left:10px;
+  font-size:16px;
+}
+
+.input-container button{
+  width:30%;
+  height:45px;
+  border:none;
+  border-radius:0 10px 10px 0;
+  background:#00ffff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.input-container button:hover{
+  background:#00ffcc;
+}
+
+/* ===== Music Button (Side) ===== */
+.music-btn{
+  position:fixed;
+  right:15px;
+  bottom:25px;
+  background:#00ffff;
+  color:black;
+  padding:12px 18px;
+  border-radius:30px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 15px #00ffff;
+  z-index:10;
+}
+
+.music-btn:hover{
+  background:#00ffcc;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Background Video -->
+<video class="bg-video" autoplay muted loop>
+  <source src="https://files.catbox.moe/dlcamg.mp4" type="video/mp4">
+</video>
+
+<div class="container">
+  <div class="box">
+    <i class="fa fa-user" style="color:#00ffff;font-size:22px;"></i>
+
+    <div class="rgb-text">QUEEN ASHA MD MINI BOT</div>
+    <h6>CREATED BY Kavindu & Ishan</h6>
+    <h6>📢 Enter your number with country code</h6>
+
+    <div class="input-container">
+      <input type="number" id="number" placeholder="9476xxxxxxx">
+      <button id="submit">Submit</button>
+    </div>
+
+    <main id="pair"></main>
+  </div>
+</div>
+
+<!-- Music -->
+<audio id="bgMusic" loop>
+  <source src="https://files.catbox.moe/zko0jc.mp3" type="audio/mp3">
+</audio>
+
+<div class="music-btn" onclick="toggleMusic()" id="musicBtn">
+  ▶ Play
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+
+<script>
+let a=document.getElementById("pair");
+let b=document.getElementById("submit");
+let c=document.getElementById("number");
+
+let music=document.getElementById("bgMusic");
+let musicBtn=document.getElementById("musicBtn");
+let started=false;
+
+/* Mobile safe autoplay */
+document.body.addEventListener("click",()=>{
+  if(!started){
+    music.play().then(()=>{
+      musicBtn.innerText="⏸ Pause";
+      started=true;
+    }).catch(()=>{});
+  }
+},{once:true});
+
+function toggleMusic(){
+  if(music.paused){
+    music.play();
+    musicBtn.innerText="⏸ Pause";
+  }else{
+    music.pause();
+    musicBtn.innerText="▶ Play";
+  }
+}
+
+async function Copy(){
+  let obj=document.getElementById("copy");
+  await navigator.clipboard.writeText(obj.innerText.replace('CODE: ',''));
+  obj.innerText="COPIED";
+}
+
+b.addEventListener("click",async(e)=>{
+  e.preventDefault();
+  if(!c.value){
+    a.innerHTML='<span style="color:white">Enter your WhatsApp number</span>';
+  }else if(c.value.replace(/[^0-9]/g,"").length<11){
+    a.innerHTML='<span style="color:red">Invalid Number</span>';
+  }else{
+    let number=c.value.replace(/[^0-9]/g,"");
+    a.innerHTML='<span style="color:white">Please wait...</span>';
+    let {data}=await axios(`/code?number=${number}`);
+    let code=data.code || "Unavailable";
+    a.innerHTML=`<div id="copy" onclick="Copy()" style="color:red;font-weight:bold">
+      CODE: <span style="color:white">${code}</span>
+    </div>`;
+  }
+});
+</script>
+
+</body>
+</html>
